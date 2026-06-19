@@ -2,11 +2,13 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { BookOpen, Check, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
-// import { authClient } from "@/lib/auth-client"; 
+import { authClient } from "@/lib/auth-client";
 
 export default function LoginPage() {
+    const router = useRouter();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -18,26 +20,22 @@ export default function LoginPage() {
         try {
             setIsLoading(true);
 
-            /*
             await authClient.signIn.social({
                 provider: "google",
-                callbackURL: "/", 
+                callbackURL: "/",
+                errorCallback: (error) => {
+                    toast.error(error.message || "Google authentication failed.", { id: loadingToast });
+                }
             });
-            */
-
-            // Simulating a successful response for now:
-            setTimeout(() => {
-                toast.success("Welcome back! Redirecting...", { id: loadingToast });
-            }, 1000);
 
         } catch (err) {
-            toast.error(err.message || "Google authentication failed.", { id: loadingToast });
+            toast.error("An unexpected error occurred.", { id: loadingToast });
         } finally {
             setIsLoading(false);
         }
     };
 
-    // Better-Auth Credentials Email/Password Handler
+    // Credentials Email/Password Handler
     const handleEmailSignIn = async (e) => {
         e.preventDefault();
         if (!email || !password) return;
@@ -46,21 +44,26 @@ export default function LoginPage() {
         try {
             setIsLoading(true);
 
-            /*
-            await authClient.signIn.email({
+            const { data, error } = await authClient.signIn.email({
                 email,
                 password,
-                callbackURL: "/", 
+                dontRedirect: true,
             });
-            */
 
-            // Simulating a successful response for now:
-            setTimeout(() => {
+            if (error) {
+                toast.error(error.message || "Invalid email or password.", { id: loadingToast });
+                return;
+            }
+
+            if (data) {
                 toast.success("Successfully logged in!", { id: loadingToast });
-            }, 1200);
+                router.push("/");
+                router.refresh();
+            }
 
         } catch (err) {
-            toast.error(err.message || "Invalid email or password.", { id: loadingToast });
+            console.log("❌ Server/Network Catch Error:", err);
+            toast.error("Something went wrong. Please try again.", { id: loadingToast });
         } finally {
             setIsLoading(false);
         }
