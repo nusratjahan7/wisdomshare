@@ -15,7 +15,7 @@ const Navbar = () => {
     const [activeLink, setActiveLink] = useState("Home");
 
     return (
-        <nav className="fixed  top-0 right-0 left-0 border-b border-gray-100 bg-(--background) backdrop-blur-md z-50 transition-all">
+        <nav className="fixed  top-0 right-0 left-0  bg-(--background) backdrop-blur-3xl z-50 transition-all">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
                     {/* Logo */}
@@ -24,8 +24,8 @@ const Navbar = () => {
                             src="/assets/logo.png"
                             alt="WisdomShare Logo"
                             width={160}
-                            height={40}
-                            className="object-contain"
+                            height={60}
+                            className="object-contain h-50 w-50"
                             priority
                         />
                     </div>

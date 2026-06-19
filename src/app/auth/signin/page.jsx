@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { BookOpen, Check, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
+// import { authClient } from "@/lib/auth-client"; 
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -161,7 +162,7 @@ export default function LoginPage() {
 
                     <p className="mt-8 text-xs font-medium text-slate-500">
                         Don't have an account?{" "}
-                        <Link href="/signup" className="text-purple-600 hover:text-purple-700 font-bold">Create one free</Link>
+                        <Link href="/auth/signup" className="text-purple-600 hover:text-purple-700 font-bold">Create one free</Link>
                     </p>
                 </div>
             </div>
