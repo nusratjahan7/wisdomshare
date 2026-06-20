@@ -4,7 +4,8 @@ import React, { useState } from 'react';
 import { authClient } from "@/lib/auth-client";
 
 import toast from 'react-hot-toast';
-import { createLesson } from '@/lib/acitions/createLesson';
+import { createLesson } from '@/lib/actions/createLesson';
+
 
 export default function AddLesson() {
     const { data: session } = authClient.useSession();

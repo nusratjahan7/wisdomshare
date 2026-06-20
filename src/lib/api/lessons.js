@@ -1,5 +1,7 @@
 import { serverFetch } from "../core/server";
 
-export const getLessons = async () => {
-    return serverFetch();
-}
+
+export const getMyLessons = async (userId) => {
+    if (!userId) return [];
+    return serverFetch(`/my-lessons?userId=${userId}`);
+};
