@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { BookOpen, Check, Eye, EyeOff } from "lucide-react";
 import toast from "react-hot-toast";
-// Import your Better-Auth client library wrapper here:
-// import { authClient } from "@/lib/auth-client"; 
+import { authClient } from "@/lib/auth-client";
 
 export default function SignupPage() {
+    const router = useRouter();
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [image, setImage] = useState("");
@@ -16,22 +16,15 @@ export default function SignupPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
-
     const handleGoogleSignUp = async () => {
         const loadingToast = toast.loading("Connecting to Google...");
         try {
             setIsLoading(true);
 
-            /*
             await authClient.signUp.social({
                 provider: "google",
-                callbackURL: "/", 
+                callbackURL: "/",
             });
-            */
-
-            setTimeout(() => {
-                toast.success("Welcome to WisdomShare!", { id: loadingToast });
-            }, 1000);
 
         } catch (err) {
             toast.error(err.message || "Google registration failed.", { id: loadingToast });
@@ -40,31 +33,36 @@ export default function SignupPage() {
         }
     };
 
-
     const handleEmailSignUp = async (e) => {
         e.preventDefault();
         if (!name || !email || !password) return;
-
         const loadingToast = toast.loading("Creating your account...");
         try {
             setIsLoading(true);
 
-            /*
-            await authClient.signUp.email({
+            const { data, error } = await authClient.signUp.email({
                 email,
                 password,
                 name,
-                image: image || undefined, // Optional field handled cleanly
-                callbackURL: "/", 
+                image: image || undefined,
+                dontRedirect: true,
             });
-            */
 
-            setTimeout(() => {
+            if (error) {
+                toast.error(error.message || "Could not complete registration.", { id: loadingToast });
+                return;
+            }
+
+            if (data) {
                 toast.success("Account created successfully! Welcome aboard.", { id: loadingToast });
-            }, 1200);
+                setTimeout(() => {
+                    router.push("/");
+                    router.refresh();
+                }, 1200);
+            }
 
         } catch (err) {
-            toast.error(err.message || "Could not complete registration.", { id: loadingToast });
+            toast.error("Something went wrong. Please try again.", { id: loadingToast });
         } finally {
             setIsLoading(false);
         }
@@ -167,7 +165,7 @@ export default function SignupPage() {
                             />
                         </div>
 
-                        {/* Photo URL (Optional Better-Auth Attribute) */}
+                        {/* Photo URL */}
                         <div className="w-full flex flex-col items-start gap-1.5">
                             <label className="text-xs font-bold text-slate-700 tracking-wide">
                                 Photo URL <span className="text-slate-400 font-normal">(optional)</span>
