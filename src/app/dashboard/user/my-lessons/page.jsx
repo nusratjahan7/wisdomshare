@@ -144,7 +144,7 @@ export default function MyLessonsPage() {
                                     </td>
 
                                     {/* Status */}
-                                    <td className="py-4 px-6">
+                                    <td className="py-4 px-4">
                                         <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 text-emerald-600 font-semibold text-xs rounded-full border border-emerald-100">
                                             ✓ Published
                                         </span>
