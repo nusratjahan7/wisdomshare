@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 const navLinks = [
     { name: "Home", href: "/" },
     { name: "Lessons", href: "/lessons" },
-    { name: "Pricing", href: "/pricing" },
+    { name: "Pricing", href: "/pricing", protected: true },
 ];
 
 const Navbar = () => {
@@ -25,6 +25,8 @@ const Navbar = () => {
 
     const { data: session } = authClient.useSession();
     const user = session?.user;
+
+    const dashboardPath = user?.role === "admin" ? "/dashboard/admin" : "/dashboard/user";
 
     useEffect(() => {
         const handleScroll = () => {
@@ -47,7 +49,6 @@ const Navbar = () => {
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
-
 
     const handleSignOut = async () => {
         const loadingToast = toast.loading("Signing out...");
@@ -73,10 +74,12 @@ const Navbar = () => {
         return name.charAt(0).toUpperCase();
     };
 
+    const visibleLinks = navLinks.filter(link => !link.protected || user);
+
     return (
         <nav
             className={`fixed top-0 right-0 left-0 z-50 transition-all duration-300 bg-white border-b border-gray-100 ${isOpen || isScrolled
-                ? "bg-white/95 shadow-sm"
+                ? "bg-white/95 backdrop-blur-md shadow-sm"
                 : "shadow-xs"
                 }`}
         >
@@ -96,7 +99,7 @@ const Navbar = () => {
 
                     {/* Desktop Nav Links */}
                     <div className="hidden md:flex items-center gap-1">
-                        {navLinks.map((link) => (
+                        {visibleLinks.map((link) => (
                             <Link
                                 key={link.name}
                                 href={link.href}
@@ -141,8 +144,9 @@ const Navbar = () => {
                                         >
                                             <UserIcon size={16} /> Profile
                                         </Link>
+
                                         <Link
-                                            href="/dashboard"
+                                            href={dashboardPath}
                                             onClick={() => setUserDropdownOpen(false)}
                                             className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors"
                                         >
@@ -201,8 +205,7 @@ const Navbar = () => {
                 {/* Mobile Menu */}
                 {isOpen && (
                     <div className="md:hidden pb-6 flex flex-col gap-1 pt-2 bg-white animate-fadeIn">
-
-                        {navLinks.map((link) => (
+                        {visibleLinks.map((link) => (
                             <Link
                                 key={link.name}
                                 href={link.href}
@@ -219,7 +222,7 @@ const Navbar = () => {
                             </Link>
                         ))}
 
-                        <div className="flex flex-col gap-2 mt-4 pt-2 border-t border-gray-100">
+                        <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-100">
                             {user ? (
                                 <>
                                     <Link
@@ -229,8 +232,9 @@ const Navbar = () => {
                                     >
                                         <UserIcon size={16} /> Profile
                                     </Link>
+
                                     <Link
-                                        href="/dashboard"
+                                        href={dashboardPath}
                                         onClick={() => setIsOpen(false)}
                                         className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50"
                                     >

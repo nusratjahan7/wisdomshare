@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { BookOpen, Check, Eye, EyeOff } from "lucide-react";
+import { BookOpen, Check, Eye, EyeOff, X } from "lucide-react";
 import toast from "react-hot-toast";
 import { authClient } from "@/lib/auth-client";
 
@@ -15,6 +15,11 @@ export default function SignupPage() {
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
+
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const isLongEnough = password.length >= 6;
+    const isPasswordValid = hasUppercase && hasLowercase && isLongEnough;
 
     const handleGoogleSignUp = async () => {
         const loadingToast = toast.loading("Connecting to Google...");
@@ -36,6 +41,12 @@ export default function SignupPage() {
     const handleEmailSignUp = async (e) => {
         e.preventDefault();
         if (!name || !email || !password) return;
+
+        if (!isPasswordValid) {
+            toast.error("Please meet all password strength criteria.");
+            return;
+        }
+
         const loadingToast = toast.loading("Creating your account...");
         try {
             setIsLoading(true);
@@ -97,7 +108,7 @@ export default function SignupPage() {
                     {/* Top Branding Header */}
                     <div className="flex items-center gap-2 mb-3">
                         <div className="w-6 h-6 rounded-lg bg-linear-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-[10px] text-white">
-                            📖
+                            <h1>📖</h1>
                         </div>
                         <span className="text-sm font-extrabold text-slate-900 tracking-tight">WisdomShare</span>
                     </div>
@@ -156,7 +167,7 @@ export default function SignupPage() {
                                 Email Address
                             </label>
                             <input
-                                type="email"
+                                type="type"
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -201,13 +212,35 @@ export default function SignupPage() {
                                     {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                                 </button>
                             </div>
+
+
+                            {password.length > 0 && (
+                                <div className="mt-2 flex flex-col gap-1 w-full p-3 bg-slate-50 rounded-xl border border-slate-100">
+                                    <p className="text-[11px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Password Requirements:</p>
+
+                                    <div className="flex items-center gap-2 text-xs">
+                                        {isLongEnough ? <Check size={14} className="text-green-500" /> : <X size={14} className="text-slate-300" />}
+                                        <span className={isLongEnough ? "text-green-600 font-medium" : "text-slate-500"}>At least 6 characters</span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 text-xs">
+                                        {hasUppercase ? <Check size={14} className="text-green-500" /> : <X size={14} className="text-slate-300" />}
+                                        <span className={hasUppercase ? "text-green-600 font-medium" : "text-slate-500"}>At least one uppercase letter (A-Z)</span>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 text-xs">
+                                        {hasLowercase ? <Check size={14} className="text-green-500" /> : <X size={14} className="text-slate-300" />}
+                                        <span className={hasLowercase ? "text-green-600 font-medium" : "text-slate-500"}>At least one lowercase letter (a-z)</span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Submit Action Button */}
                         <button
                             type="submit"
-                            disabled={isLoading}
-                            className="w-full mt-2 py-2.5 px-4 rounded-xl font-semibold text-sm text-white bg-linear-to-r from-purple-600 to-indigo-600 hover:opacity-95 shadow-lg shadow-purple-600/20 transition-all active:scale-[0.99] disabled:opacity-50 flex items-center justify-center"
+                            disabled={isLoading || (password.length > 0 && !isPasswordValid)}
+                            className="w-full mt-2 py-2.5 px-4 rounded-xl font-semibold text-sm text-white bg-linear-to-r from-purple-600 to-indigo-600 hover:opacity-95 shadow-lg shadow-purple-600/20 transition-all active:scale-[0.99] disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center"
                         >
                             {isLoading ? "Creating Account..." : "Create Account"}
                         </button>
