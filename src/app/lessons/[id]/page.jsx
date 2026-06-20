@@ -125,7 +125,7 @@ export default function LessonDetailsPage() {
     if (!lesson) return <div className="text-center py-20 text-gray-500">Loading lesson details...</div>;
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8 text-gray-800">
+        <div className="max-w-4xl mx-auto pt-10 px-4 pb-8 text-gray-800">
             {/* Header metadata layer */}
             <div className="mb-4 text-xs font-semibold tracking-wide uppercase flex gap-2">
                 <span className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded">{lesson.category}</span>
@@ -237,10 +237,15 @@ export default function LessonDetailsPage() {
 
                 <div className="space-y-4">
                     {comments.map((comment) => (
-                        <div key={comment._id} className="p-4 border rounded-xl border-gray-100 bg-gray-50/50">
+                        <div
+                            key={comment._id}
+                            className="p-4 border rounded-xl border-gray-100 bg-gray-50/50"
+                        >
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="font-semibold text-sm">{comment.username}</span>
-                                <span className="text-xs text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                                <span className="text-xs text-gray-400">
+                                    {new Date(comment.createdAt).toLocaleDateString()}
+                                </span>
                             </div>
                             <p className="text-gray-600 text-sm whitespace-pre-line">{comment.text}</p>
                         </div>
