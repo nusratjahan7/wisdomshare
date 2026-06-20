@@ -138,7 +138,7 @@ const Navbar = () => {
                                             <p className="text-sm font-bold text-gray-800 truncate">{user.name}</p>
                                         </div>
                                         <Link
-                                            href="/profile"
+                                            href="/dashboard/user/profile"
                                             onClick={() => setUserDropdownOpen(false)}
                                             className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors"
                                         >
@@ -226,7 +226,7 @@ const Navbar = () => {
                             {user ? (
                                 <>
                                     <Link
-                                        href="/profile"
+                                        href="/dashboard/user/profile"
                                         onClick={() => setIsOpen(false)}
                                         className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50"
                                     >
