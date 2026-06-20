@@ -90,7 +90,7 @@ export default function DashboardLayout({ children, userRole = "user" }) {
         <div className="min-h-screen bg-[#f8f9fd] text-slate-800 antialiased p-4 sm:p-6 lg:p-8">
             <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-                {/* SMALL DEVICES: Top Dynamic Bar (Screenshot 2026-06-20 133256.png) */}
+
                 <div className="lg:hidden col-span-1 w-full flex flex-col gap-4">
                     <button
                         onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -100,7 +100,7 @@ export default function DashboardLayout({ children, userRole = "user" }) {
                         <span className="text-sm font-bold text-slate-800">Menu</span>
                     </button>
 
-                    {/* Mobile Dropdown Open View (Screenshot 2026-06-20 133408.png) */}
+
                     {isMobileMenuOpen && (
                         <div className="w-full animate-in fade-in slide-in-from-top-2 duration-200">
                             <MenuContent />
@@ -108,7 +108,7 @@ export default function DashboardLayout({ children, userRole = "user" }) {
                     )}
                 </div>
 
-                {/* LARGE DEVICES: Sticky Aside Panel (Screenshot 2026-06-20 133227.png) */}
+
                 <aside className="hidden lg:block lg:col-span-3 sticky top-8 w-full">
                     <MenuContent />
                 </aside>
