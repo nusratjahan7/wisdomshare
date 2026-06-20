@@ -25,17 +25,17 @@ export default function DashboardLayout({ children, userRole = "user" }) {
 
     const menuConfig = {
         user: [
-            { label: 'Overview', path: '/dashboard', icon: LayoutDashboard },
-            { label: 'Add Lesson', path: '/dashboard/add-lesson', icon: PlusCircle },
-            { label: 'My Lessons', path: '/dashboard/my-lessons', icon: FileText },
-            { label: 'My Favorites', path: '/dashboard/favorites', icon: Bookmark },
-            { label: 'Profile', path: '/dashboard/profile', icon: User },
+            { label: 'Overview', path: '/dashboard/user', icon: LayoutDashboard },
+            { label: 'Add Lesson', path: '/dashboard/user/add-lesson', icon: PlusCircle },
+            { label: 'My Lessons', path: '/dashboard/user/my-lessons', icon: FileText },
+            { label: 'My Favorites', path: '/dashboard/user/favorites', icon: Bookmark },
+            { label: 'Profile', path: '/dashboard/user/profile', icon: User },
         ],
         admin: [
-            { label: 'Analytics', path: '/dashboard/analytics', icon: BarChart3 },
-            { label: 'User Management', path: '/dashboard/users', icon: Users },
-            { label: 'Lesson Moderation', path: '/dashboard/moderation', icon: ShieldAlert },
-            { label: 'Reported Content', path: '/dashboard/reports', icon: AlertTriangle },
+            { label: 'Analytics', path: '/dashboard/admin/analytics', icon: BarChart3 },
+            { label: 'User Management', path: '/dashboard/admin/users', icon: Users },
+            { label: 'Lesson Moderation', path: '/dashboard/admin/moderation', icon: ShieldAlert },
+            { label: 'Reported Content', path: '/dashboard/admin/reports', icon: AlertTriangle },
         ]
     };
 

@@ -1,4 +1,4 @@
-const baseUrl = process.env.NEXT_PUBLIC_BETTER_AUTH_URL;
+const baseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export const serverFetch = async (path) => {
     const res = await fetch(`${baseUrl}${path}`);
