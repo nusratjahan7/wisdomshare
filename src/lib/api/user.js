@@ -10,3 +10,10 @@ export const getUserDashboard = async (userId) => {
     return serverFetch(`/api/user-dashboard?userId=${userId}`);
 };
 
+export const topContributor = async () => {
+    return serverFetch('/api/top-contributors');
+};
+
+export const getAllUsers = async () => {
+    return serverFetch('/api/admin/users');
+};

@@ -28,6 +28,8 @@ const Navbar = () => {
 
     const dashboardPath = user?.role === "admin" ? "/dashboard/admin" : "/dashboard/user";
 
+    const href = user?.role === "admin" ? "/dashboard/admin/profile" : "/dashboard/user/profile";
+
     useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > 10) {
@@ -138,7 +140,7 @@ const Navbar = () => {
                                             <p className="text-sm font-bold text-gray-800 truncate">{user.name}</p>
                                         </div>
                                         <Link
-                                            href="/dashboard/user/profile"
+                                            href={href}
                                             onClick={() => setUserDropdownOpen(false)}
                                             className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 hover:bg-purple-50 hover:text-purple-600 transition-colors"
                                         >
@@ -226,7 +228,7 @@ const Navbar = () => {
                             {user ? (
                                 <>
                                     <Link
-                                        href="/dashboard/user/profile"
+                                        href={href}
                                         onClick={() => setIsOpen(false)}
                                         className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50"
                                     >
