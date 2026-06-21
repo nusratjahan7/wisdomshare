@@ -95,7 +95,7 @@ export default function LessonCard({ lesson, userPlan }) {
                         <span className="text-zinc-600 font-semibold text-[11px] capitalize">{lesson.username}</span>
                     </div>
 
-                    {/* ডাইনামিক লাইক এবং সেভ কাউন্টার */}
+
                     <div className="flex items-center gap-2.5 font-medium text-zinc-500">
                         {/* Saves Count */}
                         <span className="flex items-center gap-1 hover:text-zinc-700 transition-colors">
