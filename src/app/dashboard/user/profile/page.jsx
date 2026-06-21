@@ -102,11 +102,17 @@ export default function UserProfilePage() {
 
                 {/* Upper Section: Avatar & Info */}
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 pb-6 border-b border-slate-100">
-                    <img
-                        src={formData.image || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330'}
-                        alt="Profile"
-                        className="w-24 h-24 rounded-full object-cover border-2 border-slate-50 shadow-inner"
-                    />
+                    {formData.image ? (
+                        <img
+                            src={formData.image}
+                            alt="Profile"
+                            className="w-24 h-24 rounded-full object-cover border-2 border-slate-50 shadow-inner"
+                        />
+                    ) : (
+                        <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-600 text-white flex items-center justify-center text-3xl font-bold border-2 border-slate-50 shadow-md uppercase select-none">
+                            {formData.name ? formData.name.charAt(0) : 'U'}
+                        </div>
+                    )}
                     <div className="flex flex-col items-center sm:items-start text-center sm:text-left mt-2">
                         <div className="flex items-center gap-2">
                             <h2 className="text-xl font-bold text-slate-800">{formData.name}</h2>
