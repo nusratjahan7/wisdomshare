@@ -141,7 +141,7 @@ const Moderation = () => {
     const handleReview = async (id) => {
         try {
             const res = await fetch(
-                `http://localhost:5000/api/admin/lessons/reviewed/${id}`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/lessons/reviewed/${id}`,
                 {
                     method: "PATCH",
                 }

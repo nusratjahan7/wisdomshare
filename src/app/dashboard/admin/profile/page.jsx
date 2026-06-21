@@ -19,11 +19,6 @@ export default function UserProfilePage() {
         image: ''
     });
 
-    const [stats, setStats] = useState({
-        totalLessons: 0,
-        totalLikes: 0,
-        totalViews: "12.8k"
-    });
     const [loadingStats, setLoadingStats] = useState(true);
 
 
@@ -41,13 +36,6 @@ export default function UserProfilePage() {
                     const userId = user.id || user._id;
                     const data = await getUserStats(userId);
 
-                    if (data) {
-                        setStats(prev => ({
-                            ...prev,
-                            totalLessons: data.totalLessons ?? 0,
-                            totalLikes: data.totalLikes ?? 0
-                        }));
-                    }
                 } catch (err) {
                     console.error("Failed to fetch stats:", err);
                 } finally {
@@ -126,14 +114,7 @@ export default function UserProfilePage() {
                         <p className="text-sm text-slate-400 mt-0.5">{formData.email}</p>
                         <p className="text-sm text-slate-500 max-w-md mt-2 line-clamp-2">{formData.bio}</p>
 
-                        {/* Stats Section */}
-                        <div className="flex items-center gap-4 text-xs font-medium text-slate-400 mt-4">
-                            <span className="text-purple-600 font-semibold">{loadingStats ? '...' : stats.totalLessons} Lessons</span>
-                            <span>•</span>
-                            <span>{loadingStats ? '...' : stats.totalLikes} Likes Received</span>
-                            <span>•</span>
-                            <span>{stats.totalViews} Views</span>
-                        </div>
+
                     </div>
                 </div>
 
