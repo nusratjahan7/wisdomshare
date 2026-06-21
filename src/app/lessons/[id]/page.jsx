@@ -137,7 +137,7 @@ export default function LessonDetailsPage() {
     if (!lesson) return <div className="text-center py-20 text-gray-500">Loading lesson details...</div>;
 
     return (
-        <div className="max-w-4xl mx-auto pt-10 px-4 pb-8 text-gray-800">
+        <div className="max-w-4xl mx-auto pt-20 px-4 pb-8 text-gray-800">
             {/* Header metadata layer */}
             <div className="mb-4 text-xs font-semibold tracking-wide uppercase flex gap-2">
                 <span className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded">{lesson.category}</span>
