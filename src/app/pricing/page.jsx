@@ -70,6 +70,7 @@ export default function PricingPage() {
                         <p className="text-[11px] text-indigo-100/70 mt-1">Pay once. Access forever. No subscriptions.</p>
 
                         <form action="/api/checkout_sessions" method="POST">
+                            <input type="hidden" name="plan_id" value="user_premium" />
                             <button type="submit" role="link"
                                 className="w-full mt-5 bg-white text-indigo-700 hover:bg-zinc-50 font-extrabold text-xs h-11 rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 disabled:opacity-80 cursor-pointer"
                             >

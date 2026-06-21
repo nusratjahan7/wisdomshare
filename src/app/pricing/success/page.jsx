@@ -1,6 +1,7 @@
 import { stripe } from '@/lib/stripe'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { createPayment } from '@/lib/actions/payment'
 
 export default async function Success({ searchParams }) {
     const { session_id } = await searchParams
@@ -10,7 +11,8 @@ export default async function Success({ searchParams }) {
 
     const {
         status,
-        customer_details: { email: customerEmail }
+        customer_details: { email: customerEmail },
+        metadata
     } = await stripe.checkout.sessions.retrieve(session_id, {
         expand: ['line_items', 'payment_intent']
     })
@@ -18,8 +20,15 @@ export default async function Success({ searchParams }) {
     if (status === 'open') {
         return redirect('/')
     }
-
     if (status === 'complete') {
+        const subInfo = {
+            email: customerEmail,
+            planId: metadata.planId
+        }
+        // update the user table about he new plan
+        const result = await createPayment(subInfo);
+
+
         return (
             <div className="min-h-screen bg-(--background2) flex items-center justify-center p-6 pt-20">
 
