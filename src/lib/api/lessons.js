@@ -24,3 +24,7 @@ export const getComments = async (lessonId) => {
 export const getRelatedLessons = async (category, currentId) => {
     return serverFetch(`/api/lessons/related/${category}?currentId=${currentId}`);
 };
+
+export const getSavedLessons = async (userId) => {
+    return serverFetch(`/my-saved-lessons?userId=${userId}`);
+};

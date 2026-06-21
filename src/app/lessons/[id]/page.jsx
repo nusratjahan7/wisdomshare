@@ -8,7 +8,7 @@ import { authClient } from '@/lib/auth-client';
 import toast from 'react-hot-toast';
 
 export default function LessonDetailsPage() {
-    const { id } = useParams();
+    const { id } = useParams(); // এটিই আমাদের lessonId
     const { data: session } = authClient.useSession();
     const user = session?.user;
 
@@ -103,22 +103,34 @@ export default function LessonDetailsPage() {
 
     const handleCommentSubmit = async (e) => {
         e.preventDefault();
-        if (!user) return alert("Please log in to leave comments.");
         if (!newComment.trim()) return;
+        if (!user) return toast.error("Please log in to post a comment.");
+
+        const newCommentPayload = {
+            text: newComment,
+            username: user.username || user.name || "Anonymous",
+            lessonId: id,
+        };
 
         try {
-            const commentPayload = {
-                lessonId: id,
-                userId: user.id,
-                username: user.name || "Anonymous",
-                userImage: user.image || "",
-                text: newComment
-            };
-            const savedComment = await postComment(commentPayload);
-            setComments([savedComment, ...comments]);
-            setNewComment('');
-        } catch (err) {
-            console.error(err);
+            const result = await postComment(newCommentPayload);
+
+            if (result && (result.success !== false)) {
+
+                const optimisticComment = {
+                    ...newCommentPayload,
+                    createdAt: result.createdAt || new Date().toISOString()
+                };
+
+                setComments((prevComments) => [optimisticComment, ...prevComments]);
+                setNewComment("");
+                toast.success("Comment posted successfully!");
+            } else {
+                toast.error(result?.message || "Failed to post comment");
+            }
+        } catch (error) {
+            console.error("Error posting comment:", error);
+            toast.error("Something went wrong");
         }
     };
 
@@ -142,7 +154,9 @@ export default function LessonDetailsPage() {
                 </div>
                 <div>
                     <p className="text-sm font-medium text-gray-900">{lesson.username}</p>
-                    <p className="text-xs text-gray-400">{new Date(lesson.createdAt).toLocaleDateString()}</p>
+                    <p className="text-xs text-gray-400">
+                        {lesson.createdAt ? new Date(lesson.createdAt).toLocaleDateString() : ''}
+                    </p>
                 </div>
             </div>
 
@@ -229,27 +243,39 @@ export default function LessonDetailsPage() {
                 <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">💬 Comments <span className="text-base font-normal text-gray-400">({comments.length})</span></h3>
 
                 <form onSubmit={handleCommentSubmit} className="mb-8">
-                    <textarea value={newComment} onChange={(e) => setNewComment(e.target.value)} placeholder="Share your thoughts or how this lesson resonated with you..." className="w-full border rounded-xl p-4 min-h-[100px] shadow-sm border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500" required />
+                    <textarea
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                        placeholder="Share your thoughts or how this lesson resonated with you..."
+                        className="w-full border rounded-xl p-4 min-h-[100px] shadow-sm border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        required
+                    />
                     <div className="flex justify-end mt-2">
                         <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-6 py-2.5 rounded-lg transition text-sm">Post Comment</button>
                     </div>
                 </form>
 
                 <div className="space-y-4">
-                    {comments.map((comment) => (
-                        <div
-                            key={comment._id}
-                            className="p-4 border rounded-xl border-gray-100 bg-gray-50/50"
-                        >
-                            <div className="flex items-center gap-2 mb-2">
-                                <span className="font-semibold text-sm">{comment.username}</span>
-                                <span className="text-xs text-gray-400">
-                                    {new Date(comment.createdAt).toLocaleDateString()}
-                                </span>
+                    {comments.map((comment, index) => {
+                        // ডেট ফিল্ড ডিফেন্সিভ পার্সিং লজিক
+                        const commentDate = comment.createdAt ? new Date(comment.createdAt) : new Date();
+                        const isValidDate = !isNaN(commentDate.getTime());
+
+                        return (
+                            <div
+                                key={index}
+                                className="p-4 border rounded-xl border-gray-100 bg-gray-50/50"
+                            >
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="font-semibold text-sm">{comment.username}</span>
+                                    <span className="text-xs text-gray-400">
+                                        {isValidDate ? commentDate.toLocaleDateString() : 'Just now'}
+                                    </span>
+                                </div>
+                                <p className="text-gray-600 text-sm whitespace-pre-line">{comment.text}</p>
                             </div>
-                            <p className="text-gray-600 text-sm whitespace-pre-line">{comment.text}</p>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             </section>
 
