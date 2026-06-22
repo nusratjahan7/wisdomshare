@@ -19,6 +19,9 @@ const cardVariants = {
 };
 
 export default function LessonCard({ lesson, userPlan }) {
+    const { data: session } = authClient.useSession();
+    const user = session?.user;
+
     const router = useRouter();
     const isPremiumLesson = lesson.accessType === "Premium";
     const isFeatured = lesson.isFeatured || false;
@@ -30,6 +33,9 @@ export default function LessonCard({ lesson, userPlan }) {
     const likesCount = lesson.totalLikes || 0;
 
     const handleCardClick = () => {
+        if (!user) {
+            router.push('/auth/signin');
+        }
         if (isPremiumLesson && !hasPremiumAccess) {
             router.push('/pricing');
         } else {
