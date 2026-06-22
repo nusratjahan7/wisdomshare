@@ -53,12 +53,17 @@ export default function TopContributors() {
                             </div>
 
                             <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-zinc-100 group-hover:border-indigo-100 transition-colors">
-                                <img
-
-                                    src={item.image || item.userImage || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150"}
-                                    alt={item.name || "Contributor"}
-                                    className="w-full h-full object-cover"
-                                />
+                                {item.image || item.userImage ? (
+                                    <img
+                                        src={item.image || item.userImage}
+                                        alt={item.name || "Contributor"}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center bg-gray-300 text-gray-700 text-xl font-bold uppercase">
+                                        {item.name ? item.name.charAt(0) : "C"}
+                                    </div>
+                                )}
                             </div>
 
 
