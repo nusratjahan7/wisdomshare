@@ -8,6 +8,8 @@ import {
     CheckCircle,
 } from "lucide-react";
 import Swal from "sweetalert2";
+import { getAllAdminLessons } from "@/lib/api/lessons";
+import { deleteAdminLesson, markLessonAsReviewed, toggleFeaturedLesson } from "@/lib/actions/lessons";
 
 const Moderation = () => {
     const [lessons, setLessons] = useState([]);
@@ -23,11 +25,7 @@ const Moderation = () => {
 
     const fetchLessons = async () => {
         try {
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/lessons`
-            );
-
-            const data = await res.json();
+            const data = await getAllAdminLessons();
 
             setLessons(data);
             setFilteredLessons(data);
@@ -79,14 +77,8 @@ const Moderation = () => {
         if (!result.isConfirmed) return;
 
         try {
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/lessons/delete/${id}`,
-                {
-                    method: "DELETE",
-                }
-            );
 
-            const data = await res.json();
+            const data = await deleteAdminLesson(id);
 
             if (data.success) {
                 Swal.fire({
@@ -104,52 +96,37 @@ const Moderation = () => {
     };
 
     const handleFeatured = async (lesson) => {
+        const nextFeaturedState = !lesson.isFeatured;
+
         try {
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/lessons/featured/${lesson._id}`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        ...lesson,
-                        isFeatured: !lesson.isFeatured,
-                    }),
-                }
-            );
+            const data = await toggleFeaturedLesson(lesson._id, nextFeaturedState);
 
-            const data = await res.json();
-
-            if (data.success) {
+            if (data || data.success) {
                 Swal.fire({
                     icon: "success",
-                    title: lesson.isFeatured
-                        ? "Removed From Featured"
-                        : "Added To Featured",
+                    title: nextFeaturedState
+                        ? "Added To Featured"
+                        : "Removed From Featured",
                     timer: 1500,
                     showConfirmButton: false,
                 });
-
                 fetchLessons();
             }
         } catch (error) {
-            console.log(error);
+            console.error("Error toggling featured status:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Failed",
+                text: "Could not update featured status.",
+            });
         }
     };
 
     const handleReview = async (id) => {
         try {
-            const res = await fetch(
-                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/admin/lessons/reviewed/${id}`,
-                {
-                    method: "PATCH",
-                }
-            );
+            const data = await markLessonAsReviewed(id);
 
-            const data = await res.json();
-
-            if (data.success) {
+            if (data || data.success) {
                 Swal.fire({
                     icon: "success",
                     title: "Marked As Reviewed",
@@ -160,7 +137,12 @@ const Moderation = () => {
                 fetchLessons();
             }
         } catch (error) {
-            console.log(error);
+            console.error("Error marking lesson as reviewed:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Failed",
+                text: "Could not mark the lesson as reviewed.",
+            });
         }
     };
 

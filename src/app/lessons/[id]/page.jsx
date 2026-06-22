@@ -8,7 +8,7 @@ import { authClient } from '@/lib/auth-client';
 import toast from 'react-hot-toast';
 
 export default function LessonDetailsPage() {
-    const { id } = useParams(); // এটিই আমাদের lessonId
+    const { id } = useParams();
     const { data: session } = authClient.useSession();
     const user = session?.user;
 

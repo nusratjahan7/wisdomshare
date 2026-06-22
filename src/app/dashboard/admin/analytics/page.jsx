@@ -2,22 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import { Users, BookOpen, Crown, Flag } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid, PieChart, Pie, Cell, Legend } from 'recharts';
+import { getAdminAnalytics } from '@/lib/api/lessons';
 
 const Analytics = () => {
     const [analyticsData, setAnalyticsData] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
-
-        // এখানে ইউআরএল-টি একদম ক্লিন রাখা হয়েছে
-        fetch(`${backendUrl}/api/admin/analytics-overview`)
-            .then((res) => {
-                if (!res.ok) {
-                    throw new Error(`HTTP error! status: ${res.status}`);
-                }
-                return res.json();
-            })
+        getAdminAnalytics()
             .then((data) => {
                 setAnalyticsData(data);
                 setLoading(false);
@@ -50,7 +42,7 @@ const Analytics = () => {
     };
 
     return (
-        <div className="p-6 bg-[#F8FAFC] min-h-screen font-sans">
+        <div className="min-h-screen font-sans">
             <h1 className="text-2xl font-bold text-[#0F172A] mb-6">Platform Analytics</h1>
 
             {/* STATS CARDS GRID */}

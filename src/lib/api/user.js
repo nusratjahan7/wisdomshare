@@ -1,13 +1,13 @@
-import { serverFetch } from "../core/server";
+import { protectedFetch, serverFetch } from "../core/server";
 
 export const getUserStats = async (userId) => {
     if (!userId) return null;
-    return serverFetch(`/user/stats/${userId}`);
+    return protectedFetch(`/user/stats/${userId}`);
 };
 
 export const getUserDashboard = async (userId) => {
     if (!userId) return null;
-    return serverFetch(`/api/user-dashboard?userId=${userId}`);
+    return protectedFetch(`/api/user-dashboard?userId=${userId}`);
 };
 
 export const topContributor = async () => {
@@ -15,5 +15,5 @@ export const topContributor = async () => {
 };
 
 export const getAllUsers = async () => {
-    return serverFetch('/api/admin/users');
+    return protectedFetch('/api/admin/users');
 };
