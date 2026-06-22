@@ -2,7 +2,22 @@
 
 import { topContributor } from '@/lib/api/user';
 import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 
+const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.1,
+        },
+    },
+};
+
+const cardVariants = {
+    hidden: { opacity: 0, y: 30 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 80, damping: 15 } },
+};
 
 export default function TopContributors() {
     const [contributors, setContributors] = useState([]);
@@ -11,7 +26,6 @@ export default function TopContributors() {
     useEffect(() => {
         const fetchContributors = async () => {
             try {
-
                 const data = await topContributor();
                 if (data) {
                     setContributors(data);
@@ -31,27 +45,41 @@ export default function TopContributors() {
     return (
         <div className="py-12 bg-white text-center">
 
-            <span className="text-[10px] font-bold text-indigo-600 tracking-widest uppercase">This Week</span>
-            <h2 className="text-3xl font-extrabold text-zinc-900 mt-1">Top Contributors</h2>
-            <p className="text-zinc-500 text-xs mt-2 mb-10">The voices behind our most-loved lessons.</p>
+            <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.4 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}>
+                <span className="text-[10px] font-bold text-indigo-600 tracking-widest uppercase">This Week</span>
+                <h2 className="text-3xl font-extrabold text-zinc-900 mt-1">Top Contributors</h2>
+                <p className="text-zinc-500 text-xs mt-2 mb-10">The voices behind our most-loved lessons.</p>
+            </motion.div>
 
 
-            <div className="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto px-4">
 
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true, amount: 0.2 }} // Fires once when 20% of the container is visible
+                className="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto px-4"
+            >
                 {contributors && contributors.length > 0 ? (
                     contributors.map((item, index) => (
-                        <div
-
+                        <motion.div
                             key={item._id?.toString() || index}
+                            variants={cardVariants}
+                            whileHover={{ y: -6 }}
                             className="bg-white border border-zinc-100 p-6 rounded-2xl w-64 shadow-xs relative flex flex-col items-center group transition-all duration-300 hover:shadow-md"
                         >
-
+                            {/* Rank Badge */}
                             <div className={`absolute top-5 right-5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow-sm
-                    ${index === 0 ? 'bg-amber-500' : index === 1 ? 'bg-zinc-400' : 'bg-amber-700'}`}
+                                ${index === 0 ? 'bg-amber-500' : index === 1 ? 'bg-zinc-400' : 'bg-amber-700'}`}
                             >
                                 {index + 1}
                             </div>
 
+                            {/* Avatar */}
                             <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-zinc-100 group-hover:border-indigo-100 transition-colors">
                                 {item.image || item.userImage ? (
                                     <img
@@ -66,20 +94,20 @@ export default function TopContributors() {
                                 )}
                             </div>
 
-
+                            {/* Text Info */}
                             <h3 className="font-bold text-sm text-zinc-900 mt-4">{item.name || "Anonymous"}</h3>
                             <p className="text-[11px] text-zinc-400 font-medium mt-0.5">{item.title || "Resilience & Growth"}</p>
 
+                            {/* Lesson Count Badge */}
                             <div className="mt-4 px-3 py-1 rounded-full bg-indigo-50/70 text-indigo-600 text-[10px] font-bold tracking-wide">
                                 {item.lessonCount || 0} lessons
                             </div>
-                        </div>
+                        </motion.div>
                     ))
                 ) : (
-
                     <p className="text-zinc-400 text-xs py-4">No top contributors found active this week.</p>
                 )}
-            </div>
+            </motion.div>
         </div>
     );
 }

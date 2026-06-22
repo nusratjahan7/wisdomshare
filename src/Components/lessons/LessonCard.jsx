@@ -2,6 +2,21 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+
+
+const cardVariants = {
+    hidden: { opacity: 0, y: 25 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: 'spring',
+            stiffness: 80,
+            damping: 15
+        }
+    },
+};
 
 export default function LessonCard({ lesson, userPlan }) {
     const router = useRouter();
@@ -13,7 +28,6 @@ export default function LessonCard({ lesson, userPlan }) {
 
     const savesCount = lesson.totalSaves || lesson.saveCount || (lesson.savedBy ? lesson.savedBy.length : 0) || 0;
     const likesCount = lesson.totalLikes || 0;
-
 
     const handleCardClick = () => {
         if (isPremiumLesson && !hasPremiumAccess) {
@@ -27,8 +41,13 @@ export default function LessonCard({ lesson, userPlan }) {
     const lessonImageSrc = lesson.image && lesson.image.trim() !== "" ? lesson.image : fallbackLessonImage;
 
     return (
-        <div
+        <motion.div
             onClick={handleCardClick}
+            variants={cardVariants}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.15 }}
+            whileHover={{ y: -6 }} // Lift card up slightly on hover
             className="group relative bg-white border border-zinc-100 rounded-2xl overflow-hidden cursor-pointer hover:shadow-md transition-all duration-300 flex flex-col h-full shadow-xs"
         >
             {/* Image & Overlay Layer */}
@@ -98,7 +117,6 @@ export default function LessonCard({ lesson, userPlan }) {
                         <span className="text-zinc-600 font-semibold text-[11px] capitalize">{lesson.username}</span>
                     </div>
 
-
                     <div className="flex items-center gap-2.5 font-medium text-zinc-500">
                         {/* Saves Count */}
                         <span className="flex items-center gap-1 hover:text-zinc-700 transition-colors">
@@ -118,6 +136,6 @@ export default function LessonCard({ lesson, userPlan }) {
                     </div>
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }
