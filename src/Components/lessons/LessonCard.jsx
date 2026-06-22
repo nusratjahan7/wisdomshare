@@ -23,6 +23,9 @@ export default function LessonCard({ lesson, userPlan }) {
         }
     };
 
+    const fallbackLessonImage = "/assets/no-image.png";
+    const lessonImageSrc = lesson.image && lesson.image.trim() !== "" ? lesson.image : fallbackLessonImage;
+
     return (
         <div
             onClick={handleCardClick}
@@ -31,8 +34,8 @@ export default function LessonCard({ lesson, userPlan }) {
             {/* Image & Overlay Layer */}
             <div className="relative aspect-video w-full overflow-hidden bg-zinc-50">
                 <img
-                    src={lesson.image}
-                    alt={lesson.title}
+                    src={lessonImageSrc}
+                    alt={lesson.title || "Lesson Image"}
                     className={`w-full h-full object-cover group-hover:scale-102 transition-transform duration-500 ${isPremiumLesson && !hasPremiumAccess ? 'blur-[3px] saturate-70 select-none' : ''}`}
                 />
 
