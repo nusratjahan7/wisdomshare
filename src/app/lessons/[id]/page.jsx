@@ -142,7 +142,7 @@ export default function LessonDetailsPage() {
         }
     };
 
-    if (!lesson) return <div className="text-center py-20 text-gray-500">Loading lesson details...</div>;
+    if (!lesson) return <div className="text-center py-20 text-gray-500 min-h-screen">Loading lesson details...</div>;
 
     return (
         <div className="max-w-4xl mx-auto pt-20 px-4 pb-8 text-gray-800">
