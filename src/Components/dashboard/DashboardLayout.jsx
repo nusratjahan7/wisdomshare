@@ -32,7 +32,7 @@ export default function DashboardLayout({ children, userRole = "user" }) {
             { label: 'Profile', path: '/dashboard/user/profile', icon: User },
         ],
         admin: [
-            { label: 'Analytics', path: '/dashboard/admin/analytics', icon: BarChart3 },
+            { label: 'Analytics', path: '/dashboard/admin', icon: BarChart3 },
             { label: 'User Management', path: '/dashboard/admin/users', icon: Users },
             { label: 'Lesson Moderation', path: '/dashboard/admin/moderation', icon: ShieldAlert },
             { label: 'Reported Content', path: '/dashboard/admin/reports', icon: AlertTriangle },
