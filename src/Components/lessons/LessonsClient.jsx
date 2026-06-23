@@ -90,6 +90,7 @@ export default function LessonsClient({ lessons = [], filters, total = 0, userPl
                         key={lesson._id}
                         lesson={lesson}
                         userPlan={userPlan}
+                        isLoggedIn={!!userPlan}
                     />
                 ))}
             </div>

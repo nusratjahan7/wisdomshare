@@ -3,7 +3,6 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { authClient } from "@/lib/auth-client";
 
 const cardVariants = {
     hidden: { opacity: 0, y: 25 },
@@ -18,23 +17,21 @@ const cardVariants = {
     },
 };
 
-export default function LessonCard({ lesson, userPlan }) {
-
+export default function LessonCard({ lesson, userPlan, isLoggedIn }) {
 
     const router = useRouter();
     const isPremiumLesson = lesson.accessType === "Premium";
     const isFeatured = lesson.isFeatured || false;
     const hasPremiumAccess = userPlan === "user_premium";
 
-    const { data: session } = authClient.useSession();
-    const user = session?.user;
 
     const savesCount = lesson.totalSaves || lesson.saveCount || (lesson.savedBy ? lesson.savedBy.length : 0) || 0;
     const likesCount = lesson.totalLikes || 0;
 
     const handleCardClick = () => {
-        if (!user) {
-            router.push('/auth/signin')
+        if (!isLoggedIn) {
+            router.push('/auth/signin');
+            return;
         }
         if (isPremiumLesson && !hasPremiumAccess) {
             router.push('/pricing');

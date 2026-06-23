@@ -25,6 +25,14 @@ export default function LessonDetailsPage() {
     const [reportText, setReportText] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
+
+    useEffect(() => {
+        if (session === null) {
+            toast("Please log in to view lesson details.");
+            window.location.href = '/auth/signin';
+        }
+    }, [session]);
+
     useEffect(() => {
         if (!id) return;
 
