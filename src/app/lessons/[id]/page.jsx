@@ -24,8 +24,6 @@ export default function LessonDetailsPage() {
     // Modal & Reporting State
     const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     const [reportText, setReportText] = useState('');
-    const [errorMessage, setErrorMessage] = useState('');
-
 
     useEffect(() => {
         if (!isPending && !session) {
@@ -34,29 +32,35 @@ export default function LessonDetailsPage() {
         }
     }, [session, isPending, router]);
 
+
     useEffect(() => {
         if (!id) return;
 
-        // Fetch primary payload data structures
-        getLessonDetails(id).then(data => {
-            setLesson(data);
-            setLikesCount(data.totalLikes || 0);
-            if (user) {
-                setHasLiked(data.likedBy?.includes(user.id) || false);
-            }
+        getLessonDetails(id)
+            .then(data => {
+                if (data) {
+                    setLesson(data);
+                    setLikesCount(data.totalLikes || 0);
+                    getRelatedLessons(data.category, id).then(res => setRelatedLessons(res || []));
+                }
+            })
+            .catch(err => console.error("Error fetching lesson:", err));
 
-            // Get category-matched recommendations
-            getRelatedLessons(data.category, id).then(res => setRelatedLessons(res));
-        });
+        getComments(id)
+            .then(res => setComments(res || []))
+            .catch(err => console.error("Error fetching comments:", err));
 
-        // Fetch comments
-        getComments(id).then(res => setComments(res));
+    }, [id]);
 
-        // Fetch active save status tracking indicators
-        if (user) {
-            checkSaveStatus(id, user.id).then(res => setIsSaved(res.isSaved));
-        }
-    }, [id, user?.id]);
+    useEffect(() => {
+        if (!id || !user || !lesson) return;
+        setHasLiked(lesson.likedBy?.includes(user.id) || false);
+
+        checkSaveStatus(id, user.id)
+            .then(res => setIsSaved(res?.isSaved || false))
+            .catch(err => console.error("Error checking save status:", err));
+
+    }, [id, user, lesson]);
 
     const handleLike = async () => {
         if (!user) return toast("Please log in to like this lesson.");
@@ -144,7 +148,7 @@ export default function LessonDetailsPage() {
     };
 
     if (isPending || !lesson) {
-        return <div className="text-center py-20">Loading...</div>;
+        return <div className="text-center py-20 min-h-screen">Loading...</div>;
     }
 
     return (
