@@ -2,15 +2,16 @@
 import React, { useState, useEffect } from 'react';
 import { checkSaveStatus, getComments, getLessonDetails, getRelatedLessons } from '@/lib/api/lessons';
 import { postComment, saveLesson, submitReport, toggleLikeLesson } from '@/lib/actions/createLesson';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import toast from 'react-hot-toast';
 
 export default function LessonDetailsPage() {
     const { id } = useParams();
-    const { data: session } = authClient.useSession();
+    const { data: session, isPending } = authClient.useSession();
     const user = session?.user;
+    const router = useRouter();
 
     const [lesson, setLesson] = useState(null);
     const [comments, setComments] = useState([]);
@@ -27,11 +28,11 @@ export default function LessonDetailsPage() {
 
 
     useEffect(() => {
-        if (session === null) {
+        if (!isPending && !session) {
             toast("Please log in to view lesson details.");
-            window.location.href = '/auth/signin';
+            router.push('/auth/signin');
         }
-    }, [session]);
+    }, [session, isPending, router]);
 
     useEffect(() => {
         if (!id) return;
@@ -142,7 +143,9 @@ export default function LessonDetailsPage() {
         }
     };
 
-    if (!lesson) return <div className="text-center py-20 text-gray-500 min-h-screen">Loading lesson details...</div>;
+    if (isPending || !lesson) {
+        return <div className="text-center py-20">Loading...</div>;
+    }
 
     return (
         <div className="max-w-4xl mx-auto pt-20 px-4 pb-8 text-gray-800">
