@@ -103,6 +103,11 @@ export default function LessonCard({ lesson, userPlan, isLoggedIn }) {
                     {lesson.subtitle}
                 </h4>
 
+                {lesson.summary && (
+                    <p className="text-[11px] text-purple-600 italic mt-2 line-clamp-2 leading-relaxed">
+                        ✨ {lesson.summary}
+                    </p>
+                )}
                 <p className="text-[11px] text-zinc-500 mt-2 line-clamp-2 leading-relaxed flex-grow">
                     {lesson.shortDescription}
                 </p>

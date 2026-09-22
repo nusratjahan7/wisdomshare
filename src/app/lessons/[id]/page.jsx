@@ -6,6 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authClient } from '@/lib/auth-client';
 import toast from 'react-hot-toast';
+import FollowButton from '@/Components/shared/FollowButton';
 
 export default function LessonDetailsPage() {
     const { id } = useParams();
@@ -17,6 +18,8 @@ export default function LessonDetailsPage() {
     const [comments, setComments] = useState([]);
     const [relatedLessons, setRelatedLessons] = useState([]);
     const [newComment, setNewComment] = useState('');
+    const [replyingTo, setReplyingTo] = useState(null);
+    const [replyText, setReplyText] = useState('');
     const [isSaved, setIsSaved] = useState(false);
     const [hasLiked, setHasLiked] = useState(false);
     const [likesCount, setLikesCount] = useState(0);
@@ -114,15 +117,18 @@ export default function LessonDetailsPage() {
         }
     };
 
-    const handleCommentSubmit = async (e) => {
+    const handleCommentSubmit = async (e, parentId = null) => {
         e.preventDefault();
-        if (!newComment.trim()) return;
+        const text = parentId ? replyText : newComment;
+        if (!text.trim()) return;
         if (!user) return toast.error("Please log in to post a comment.");
 
         const newCommentPayload = {
-            text: newComment,
+            text,
             username: user.username || user.name || "Anonymous",
+            userId: user.id,
             lessonId: id,
+            parentId,
         };
 
         try {
@@ -132,11 +138,17 @@ export default function LessonDetailsPage() {
 
                 const optimisticComment = {
                     ...newCommentPayload,
+                    _id: result.insertedId,
                     createdAt: result.createdAt || new Date().toISOString()
                 };
 
                 setComments((prevComments) => [optimisticComment, ...prevComments]);
-                setNewComment("");
+                if (parentId) {
+                    setReplyText("");
+                    setReplyingTo(null);
+                } else {
+                    setNewComment("");
+                }
                 toast.success("Comment posted successfully!");
             } else {
                 toast.error(result?.message || "Failed to post comment");
@@ -146,6 +158,15 @@ export default function LessonDetailsPage() {
             toast.error("Something went wrong");
         }
     };
+
+    const topLevelComments = comments.filter((c) => !c.parentId);
+    const repliesByParent = comments.reduce((acc, c) => {
+        if (c.parentId) {
+            if (!acc[c.parentId]) acc[c.parentId] = [];
+            acc[c.parentId].push(c);
+        }
+        return acc;
+    }, {});
 
     if (isPending || !lesson) {
         return <div className="text-center py-20 min-h-screen">Loading...</div>;
@@ -163,22 +184,33 @@ export default function LessonDetailsPage() {
             <h1 className="text-4xl font-bold text-gray-900 mb-2">{lesson.title}</h1>
             <p className="text-xl text-gray-600 mb-6">{lesson.subtitle}</p>
 
-            <div className="flex items-center gap-3 mb-6 border-b pb-4 border-gray-100">
+            <Link href={`/authors/${lesson.userId}`} className="flex items-center gap-3 mb-6 border-b pb-4 border-gray-100 w-fit group">
                 <div className="w-10 h-10 bg-gray-200 rounded-full overflow-hidden">
                     {lesson.userImage ? <img src={lesson.userImage} alt={lesson.username} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center font-bold text-gray-500">{lesson.username?.[0]?.toUpperCase()}</div>}
                 </div>
                 <div>
-                    <p className="text-sm font-medium text-gray-900">{lesson.username}</p>
+                    <p className="text-sm font-medium text-gray-900 group-hover:text-purple-600 transition-colors">{lesson.username}</p>
                     <p className="text-xs text-gray-400">
                         {lesson.createdAt ? new Date(lesson.createdAt).toLocaleDateString() : ''}
                     </p>
                 </div>
-            </div>
+            </Link>
 
             {/* Display Hero Banner */}
             {lesson.image && (
                 <div className="w-full h-96 rounded-xl overflow-hidden mb-8">
                     <img src={lesson.image} alt={lesson.title} className="w-full h-full object-cover" />
+                </div>
+            )}
+
+            {/* AI-generated TL;DR */}
+            {lesson.summary && (
+                <div className="mb-8 p-4 rounded-xl bg-purple-50 border border-purple-100 flex gap-3">
+                    <span className="text-lg leading-none">✨</span>
+                    <div>
+                        <p className="text-xs font-semibold text-purple-700 uppercase tracking-wide mb-1">TL;DR</p>
+                        <p className="text-sm text-purple-900">{lesson.summary}</p>
+                    </div>
                 </div>
             )}
 
@@ -271,23 +303,97 @@ export default function LessonDetailsPage() {
                 </form>
 
                 <div className="space-y-4">
-                    {comments.map((comment, index) => {
+                    {topLevelComments.map((comment, index) => {
+                        const commentId = comment._id?.toString?.() || comment._id;
                         // ডেট ফিল্ড ডিফেন্সিভ পার্সিং লজিক
                         const commentDate = comment.createdAt ? new Date(comment.createdAt) : new Date();
                         const isValidDate = !isNaN(commentDate.getTime());
+                        const replies = repliesByParent[commentId] || [];
 
                         return (
-                            <div
-                                key={index}
-                                className="p-4 border rounded-xl border-gray-100 bg-gray-50/50"
-                            >
-                                <div className="flex items-center gap-2 mb-2">
-                                    <span className="font-semibold text-sm">{comment.username}</span>
-                                    <span className="text-xs text-gray-400">
-                                        {isValidDate ? commentDate.toLocaleDateString() : 'Just now'}
-                                    </span>
+                            <div key={commentId || index}>
+                                <div className="p-4 border rounded-xl border-gray-100 bg-gray-50/50">
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                        <div className="flex items-center gap-2">
+                                            {comment.userId ? (
+                                                <Link href={`/authors/${comment.userId}`} className="font-semibold text-sm hover:text-purple-600 transition-colors">
+                                                    {comment.username}
+                                                </Link>
+                                            ) : (
+                                                <span className="font-semibold text-sm">{comment.username}</span>
+                                            )}
+                                            <span className="text-xs text-gray-400">
+                                                {isValidDate ? commentDate.toLocaleDateString() : 'Just now'}
+                                            </span>
+                                        </div>
+                                        {comment.userId && user && comment.userId !== user.id && (
+                                            <FollowButton authorId={comment.userId} isLoggedIn={!!user} compact />
+                                        )}
+                                    </div>
+                                    <p className="text-gray-600 text-sm whitespace-pre-line">{comment.text}</p>
+                                    <button
+                                        type="button"
+                                        onClick={() => setReplyingTo(replyingTo === commentId ? null : commentId)}
+                                        className="text-xs font-semibold text-purple-600 hover:text-purple-700 mt-2"
+                                    >
+                                        Reply
+                                    </button>
+
+                                    {replyingTo === commentId && (
+                                        <form onSubmit={(e) => handleCommentSubmit(e, commentId)} className="mt-3">
+                                            <textarea
+                                                value={replyText}
+                                                onChange={(e) => setReplyText(e.target.value)}
+                                                placeholder={`Reply to ${comment.username}...`}
+                                                className="w-full border rounded-lg p-3 min-h-[70px] text-sm shadow-sm border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                required
+                                            />
+                                            <div className="flex justify-end gap-2 mt-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => { setReplyingTo(null); setReplyText(""); }}
+                                                    className="text-xs font-medium text-gray-500 hover:text-gray-700 px-3 py-1.5"
+                                                >
+                                                    Cancel
+                                                </button>
+                                                <button type="submit" className="bg-purple-600 hover:bg-purple-700 text-white font-medium px-4 py-1.5 rounded-lg transition text-xs">
+                                                    Post Reply
+                                                </button>
+                                            </div>
+                                        </form>
+                                    )}
                                 </div>
-                                <p className="text-gray-600 text-sm whitespace-pre-line">{comment.text}</p>
+
+                                {replies.length > 0 && (
+                                    <div className="ml-8 mt-2 space-y-2">
+                                        {replies.map((reply, replyIndex) => {
+                                            const replyDate = reply.createdAt ? new Date(reply.createdAt) : new Date();
+                                            const isReplyDateValid = !isNaN(replyDate.getTime());
+                                            return (
+                                                <div key={reply._id?.toString?.() || `${commentId}-${replyIndex}`} className="p-3 border rounded-xl border-gray-100 bg-white">
+                                                    <div className="flex items-center justify-between gap-2 mb-1.5">
+                                                        <div className="flex items-center gap-2">
+                                                            {reply.userId ? (
+                                                                <Link href={`/authors/${reply.userId}`} className="font-semibold text-xs hover:text-purple-600 transition-colors">
+                                                                    {reply.username}
+                                                                </Link>
+                                                            ) : (
+                                                                <span className="font-semibold text-xs">{reply.username}</span>
+                                                            )}
+                                                            <span className="text-[11px] text-gray-400">
+                                                                {isReplyDateValid ? replyDate.toLocaleDateString() : 'Just now'}
+                                                            </span>
+                                                        </div>
+                                                        {reply.userId && user && reply.userId !== user.id && (
+                                                            <FollowButton authorId={reply.userId} isLoggedIn={!!user} compact />
+                                                        )}
+                                                    </div>
+                                                    <p className="text-gray-600 text-xs whitespace-pre-line">{reply.text}</p>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         );
                     })}

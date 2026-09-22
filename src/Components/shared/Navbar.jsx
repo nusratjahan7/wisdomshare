@@ -7,10 +7,12 @@ import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 import { LogOut, LayoutDashboard, User as UserIcon } from "lucide-react";
 import toast from "react-hot-toast";
+import NotificationBell from "./NotificationBell";
 
 const navLinks = [
     { name: "Home", href: "/" },
     { name: "Lessons", href: "/lessons" },
+    { name: "Following", href: "/lessons/following", protected: true },
     { name: "Pricing", href: "/pricing", protected: true },
 ];
 
@@ -120,6 +122,8 @@ const Navbar = () => {
                     <div className="hidden md:flex items-center gap-3">
                         {user ? (
                             /* Logged In Status: Avatar & Dropdown */
+                            <>
+                            <NotificationBell />
                             <div className="relative" ref={dropdownRef}>
                                 <button
                                     onClick={() => setUserDropdownOpen(!userDropdownOpen)}
@@ -163,6 +167,7 @@ const Navbar = () => {
                                     </div>
                                 )}
                             </div>
+                            </>
                         ) : (
                             /* Logged Out Status: Default Buttons */
                             <>

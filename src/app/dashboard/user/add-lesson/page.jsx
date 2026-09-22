@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { authClient } from "@/lib/auth-client";
 
 import toast from 'react-hot-toast';
 import { createLesson } from '@/lib/actions/createLesson';
+import { suggestMetadata, tightenProse } from '@/lib/actions/ai';
 
 
 export default function AddLesson() {
@@ -23,8 +24,75 @@ export default function AddLesson() {
         content: ''
     });
 
+    const [aiLoading, setAiLoading] = useState(false);
+    const [titleSuggestions, setTitleSuggestions] = useState([]);
+    const [subtitleSuggestions, setSubtitleSuggestions] = useState([]);
+    const [shortDescriptionSuggestions, setShortDescriptionSuggestions] = useState([]);
+    const [tagSuggestions, setTagSuggestions] = useState([]);
+    const previousContentRef = useRef(null);
+
+    const contentTooShort = formData.content.trim().length < 50;
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSuggestMetadata = async () => {
+        setAiLoading(true);
+        try {
+            const result = await suggestMetadata(formData.content, formData.title);
+            if (result?.error) {
+                toast.error(result.error);
+                return;
+            }
+            setTitleSuggestions(result.titleSuggestions || []);
+            setSubtitleSuggestions(result.subtitleSuggestions || []);
+            setShortDescriptionSuggestions(result.shortDescriptionSuggestions || []);
+            setTagSuggestions(result.tags || []);
+        } catch (error) {
+            console.error(error);
+            toast.error("Couldn't get AI suggestions. Try again.");
+        } finally {
+            setAiLoading(false);
+        }
+    };
+
+    const handleTightenProse = async () => {
+        setAiLoading(true);
+        try {
+            const result = await tightenProse(formData.content);
+            if (result?.error) {
+                toast.error(result.error);
+                return;
+            }
+            previousContentRef.current = formData.content;
+            setFormData((prev) => ({ ...prev, content: result.revised }));
+            toast.success("Content tightened by AI.", {
+                icon: '✨',
+                duration: 5000,
+            });
+            toast((t) => (
+                <span className="flex items-center gap-3 text-sm">
+                    Prose updated.
+                    <button
+                        onClick={() => {
+                            if (previousContentRef.current !== null) {
+                                setFormData((prev) => ({ ...prev, content: previousContentRef.current }));
+                            }
+                            toast.dismiss(t.id);
+                        }}
+                        className="font-semibold text-purple-600 underline"
+                    >
+                        Undo
+                    </button>
+                </span>
+            ), { duration: 6000 });
+        } catch (error) {
+            console.error(error);
+            toast.error("Couldn't tighten prose. Try again.");
+        } finally {
+            setAiLoading(false);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -88,6 +156,20 @@ export default function AddLesson() {
                             placeholder="e.g. The day I stopped people-pleasing"
                             className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                         />
+                        {titleSuggestions.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                                {titleSuggestions.map((suggestion, i) => (
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        onClick={() => setFormData((prev) => ({ ...prev, title: suggestion }))}
+                                        className="text-xs px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors"
+                                    >
+                                        {suggestion}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-semibold text-slate-700">Subtitle</label>
@@ -96,6 +178,20 @@ export default function AddLesson() {
                             placeholder="A short, compelling subtitle"
                             className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                         />
+                        {subtitleSuggestions.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                                {subtitleSuggestions.map((suggestion, i) => (
+                                    <button
+                                        key={i}
+                                        type="button"
+                                        onClick={() => setFormData((prev) => ({ ...prev, subtitle: suggestion }))}
+                                        className="text-xs px-2.5 py-1 rounded-full bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors"
+                                    >
+                                        {suggestion}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -157,16 +253,60 @@ export default function AddLesson() {
                         placeholder="A brief preview of your lesson (shown in cards)"
                         className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                     />
+                    {shortDescriptionSuggestions.length > 0 && (
+                        <div className="flex flex-col gap-1.5 pt-1">
+                            {shortDescriptionSuggestions.map((suggestion, i) => (
+                                <button
+                                    key={i}
+                                    type="button"
+                                    onClick={() => setFormData((prev) => ({ ...prev, shortDescription: suggestion }))}
+                                    className="text-left text-xs px-3 py-1.5 rounded-lg bg-purple-50 text-purple-700 hover:bg-purple-100 transition-colors"
+                                >
+                                    {suggestion}
+                                </button>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Full Lesson Content */}
                 <div className="flex flex-col gap-1.5">
-                    <label className="text-sm font-semibold text-slate-700">Full Lesson Content *</label>
+                    <div className="flex items-center justify-between">
+                        <label className="text-sm font-semibold text-slate-700">Full Lesson Content *</label>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                onClick={handleSuggestMetadata}
+                                disabled={contentTooShort || aiLoading}
+                                className="text-xs font-semibold px-3 py-1.5 rounded-full border border-purple-200 text-purple-600 hover:bg-purple-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                {aiLoading ? "Thinking..." : "✨ Suggest details"}
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleTightenProse}
+                                disabled={contentTooShort || aiLoading}
+                                className="text-xs font-semibold px-3 py-1.5 rounded-full border border-purple-200 text-purple-600 hover:bg-purple-50 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                                {aiLoading ? "Thinking..." : "✨ Tighten with AI"}
+                            </button>
+                        </div>
+                    </div>
                     <textarea
                         required name="content" rows={6} value={formData.content} onChange={handleChange}
                         placeholder="Write your lesson here. Be honest, specific, and human. Your vulnerability is your strength."
                         className="w-full border border-slate-200 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 resize-none"
                     />
+                    {tagSuggestions.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 items-center pt-1">
+                            <span className="text-xs text-slate-400">Suggested tags:</span>
+                            {tagSuggestions.map((tag, i) => (
+                                <span key={i} className="text-xs px-2.5 py-1 rounded-full bg-indigo-50 text-indigo-700">
+                                    {tag}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* Buttons */}

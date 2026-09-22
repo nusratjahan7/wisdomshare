@@ -29,6 +29,7 @@ export default function DashboardLayout({ children, userRole = "user" }) {
             { label: 'Add Lesson', path: '/dashboard/user/add-lesson', icon: PlusCircle },
             { label: 'My Lessons', path: '/dashboard/user/my-lessons', icon: FileText },
             { label: 'My Favorites', path: '/dashboard/user/favorites', icon: Bookmark },
+            { label: 'Followers & Following', path: '/dashboard/user/followers', icon: Users },
             { label: 'Profile', path: '/dashboard/user/profile', icon: User },
         ],
         admin: [
