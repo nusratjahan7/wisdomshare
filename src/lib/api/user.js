@@ -10,8 +10,8 @@ export const getUserDashboard = async (userId) => {
     return protectedFetch(`/api/user-dashboard?userId=${userId}`);
 };
 
-export const topContributor = async () => {
-    return serverFetch('/api/top-contributors');
+export const topContributor = async (limit) => {
+    return serverFetch(`/api/top-contributors${limit ? `?limit=${limit}` : ''}`);
 };
 
 export const getAllUsers = async () => {
